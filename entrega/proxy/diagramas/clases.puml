@@ -1,4 +1,5 @@
 @startuml
+skinparam dpi 200
 title Proxy - Acceso a reportes gerenciales
 
 class Main <<control>>
