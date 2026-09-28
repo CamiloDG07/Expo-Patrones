@@ -1,0 +1,47 @@
+@startuml
+title Facade - Venta de tiquetes de bus
+
+class Main <<control>>
+
+class VentaTiquetesFacade {
+  +comprarTiquete(pasajero, correo, silla, valor, medioPago): boolean
+}
+
+class InventarioSillas {
+  -ocupadas: Set<Integer>
+  +estaDisponible(silla): boolean
+  +bloquear(silla): void
+  +liberar(silla): void
+}
+
+class ServicioPago {
+  +validarMedioPago(medio): boolean
+  +cobrar(medio, valor): String
+}
+
+class ServicioFacturacion {
+  -consecutivo: int
+  +generarFactura(pasajero, valor, transaccion): String
+}
+
+class ServicioNotificaciones {
+  +enviarConfirmacion(correo, factura, silla): void
+}
+
+Main ..> VentaTiquetesFacade : usa
+VentaTiquetesFacade *-- InventarioSillas
+VentaTiquetesFacade *-- ServicioPago
+VentaTiquetesFacade *-- ServicioFacturacion
+VentaTiquetesFacade *-- ServicioNotificaciones
+
+note right of Main
+  Diagrama que se defiende: Main (cliente)
+  depende SOLO de la fachada (bajo acoplamiento).
+  En el código de la demo, Main también llama
+  a los 4 subsistemas directamente para el
+  bloque "sin Facade" — eso es solo un recurso
+  didáctico de comparación, no el diseño
+  recomendado.
+end note
+
+@enduml

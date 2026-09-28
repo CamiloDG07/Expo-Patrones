@@ -1,0 +1,54 @@
+@startuml
+title Flyweight - Secuencia: creación "con Flyweight" de 2 buses del mismo modelo
+
+actor Cliente
+participant "main:Main" as Main
+participant "TipoBusFactory" as Fab
+participant "cache:Map" as Cache
+participant "tipo:TipoBus" as Tipo
+participant "bus1:BusEnRuta" as Bus1
+participant "bus2:BusEnRuta" as Bus2
+
+Cliente -> Main : ejecutar demo
+activate Main
+
+Main -> Fab : obtener("Mercedes-Benz", "O500", 42)
+activate Fab
+Fab -> Cache : computeIfAbsent(clave, ...)
+activate Cache
+Cache -> Tipo : new TipoBus(...) [clave NO existía]
+activate Tipo
+Tipo --> Cache : tipo
+deactivate Tipo
+Cache --> Fab : tipo
+deactivate Cache
+Fab --> Main : tipo
+deactivate Fab
+
+Main -> Bus1 : new BusEnRuta("BUS0", lat, lon, tipo)
+activate Bus1
+deactivate Bus1
+
+Main -> Fab : obtener("Mercedes-Benz", "O500", 42)
+activate Fab
+Fab -> Cache : computeIfAbsent(clave, ...)
+activate Cache
+note right of Cache : la clave YA existe:\nno se ejecuta el lambda,\nno se crea un TipoBus nuevo
+Cache --> Fab : el MISMO tipo de antes
+deactivate Cache
+Fab --> Main : tipo
+deactivate Fab
+
+Main -> Bus2 : new BusEnRuta("BUS3", lat2, lon2, tipo)
+activate Bus2
+deactivate Bus2
+
+note over Bus1, Bus2
+  bus1.tipo y bus2.tipo apuntan al MISMO
+  objeto TipoBus en memoria (agregación,
+  no composición): un solo objeto
+  compartido por miles de buses.
+end note
+
+deactivate Main
+@enduml

@@ -1,0 +1,52 @@
+@startuml
+title Proxy - Secuencia: obtenerReporte() en los 4 casos de la demo
+
+actor Cliente
+participant "main:Main" as Main
+participant "practicante:ProxyReportes" as PP
+participant "gerente:ProxyReportes" as PG
+participant "real:RepositorioReportesReal" as Real
+
+Cliente -> Main : ejecutar demo
+activate Main
+
+== 1) Sin permisos (protección) ==
+Main -> PP : obtenerReporte("REP-2026-09")
+activate PP
+note right of PP : rol PRACTICANTE no es\nGERENTE ni AUDITOR
+PP --> Main : null
+deactivate PP
+
+== 2) Con permisos, 1ª consulta (virtual) ==
+Main -> PG : obtenerReporte("REP-2026-09")
+activate PG
+note right of PG : real == null todavía
+PG -> Real : new RepositorioReportesReal()
+activate Real
+Real --> PG : (~800 ms, conexión)
+PG -> Real : obtenerReporte("REP-2026-09")
+Real --> PG : "Contenido confidencial..." (~1000 ms)
+PG -> PG : cache.put("REP-2026-09", resultado)
+PG --> Main : resultado
+deactivate PG
+
+== 3) Misma consulta (caché) ==
+Main -> PG : obtenerReporte("REP-2026-09")
+activate PG
+note right of PG : cache.containsKey == true\nNO se toca "real"
+PG --> Main : resultado (desde caché, ~0 ms)
+deactivate PG
+
+== 4) Otro reporte (real ya existe) ==
+Main -> PG : obtenerReporte("REP-2026-10")
+activate PG
+note right of PG : real != null (reutilizado)\ncache NO tiene "REP-2026-10"
+PG -> Real : obtenerReporte("REP-2026-10")
+Real --> PG : "Contenido confidencial..." (~1000 ms)
+PG -> PG : cache.put("REP-2026-10", resultado)
+PG --> Main : resultado
+deactivate PG
+deactivate Real
+
+deactivate Main
+@enduml

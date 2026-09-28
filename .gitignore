@@ -1,0 +1,13 @@
+# Clases compiladas de cada proyecto
+mi-trabajo/*/out/
+decorator/out/
+facade/out/
+flyweight/out/
+proxy/out/
+**/out/
+
+# Archivos temporales del sistema
+Thumbs.db
+.DS_Store
+*.tmp
+~$*

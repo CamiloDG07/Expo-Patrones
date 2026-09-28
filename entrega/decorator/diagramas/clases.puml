@@ -1,0 +1,51 @@
+@startuml
+title Decorator - Tiquetes de bus con extras
+
+interface Tiquete {
+  +descripcion(): String
+  +costo(): double
+}
+
+class TiqueteBasico {
+  -ruta: String
+  -tarifa: double
+  +descripcion(): String
+  +costo(): double
+}
+
+abstract class TiqueteDecorator {
+  #envuelto: Tiquete
+  +descripcion(): String
+  +costo(): double
+}
+
+class SeguroViaje {
+  -{static} COSTO_SEGURO: double = 3500
+  +descripcion(): String
+  +costo(): double
+}
+
+class EquipajeExtra {
+  -{static} COSTO_POR_KILO: double = 1200
+  -kilos: int
+  +descripcion(): String
+  +costo(): double
+}
+
+class RefrigerioABordo {
+  -{static} COSTO_REFRIGERIO: double = 8000
+  +descripcion(): String
+  +costo(): double
+}
+
+class Main <<control>>
+
+Tiquete <|.. TiqueteBasico
+Tiquete <|.. TiqueteDecorator
+TiqueteDecorator o-- Tiquete : envuelto
+TiqueteDecorator <|-- SeguroViaje
+TiqueteDecorator <|-- EquipajeExtra
+TiqueteDecorator <|-- RefrigerioABordo
+Main ..> Tiquete : usa
+
+@enduml

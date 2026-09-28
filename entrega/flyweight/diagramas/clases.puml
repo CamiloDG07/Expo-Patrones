@@ -1,0 +1,49 @@
+@startuml
+title Flyweight - Buses en el mapa de monitoreo
+
+class Main <<control>>
+
+class TipoBusFactory {
+  -{static} CACHE: Map<String, TipoBus>
+  +{static} obtener(marca, modelo, capacidad): TipoBus
+  +{static} totalTiposCreados(): int
+}
+
+class TipoBus <<flyweight>> {
+  -marca: String
+  -modelo: String
+  -capacidad: int
+  -modelo3D: byte[]
+  +dibujar(placa, lat, lon): String
+  +{static} clave(marca, modelo, capacidad): String
+}
+
+class BusEnRuta <<contexto>> {
+  -placa: String
+  -latitud: double
+  -longitud: double
+  +mover(lat, lon): void
+  +dibujar(): String
+}
+
+Main ..> TipoBusFactory : usa
+Main ..> BusEnRuta : crea
+TipoBusFactory ..> TipoBus : crea / cachea
+BusEnRuta "1..*" o-- "1" TipoBus : tipo (compartido)
+
+note right of TipoBus
+  Estado INTRÍNSECO: compartido,
+  inmutable (final). Un mismo objeto
+  TipoBus es referenciado por miles
+  de BusEnRuta del mismo modelo.
+  Solo existen 3 instancias para
+  5.000 buses.
+end note
+
+note right of BusEnRuta
+  Estado EXTRÍNSECO: propio de
+  cada bus físico (placa, posición).
+  No se comparte.
+end note
+
+@enduml

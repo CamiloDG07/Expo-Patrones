@@ -1,0 +1,58 @@
+@startuml
+title Facade - Secuencia: comprarTiquete()
+
+actor Cliente
+participant "main:Main" as Main
+participant "ventas:VentaTiquetesFacade" as F
+participant "inventario:InventarioSillas" as INV
+participant "pago:ServicioPago" as PAGO
+participant "facturacion:ServicioFacturacion" as FACT
+participant "notificaciones:ServicioNotificaciones" as NOT
+
+Cliente -> Main : ejecutar demo
+activate Main
+
+Main -> F : comprarTiquete("Carlos Gómez", ..., 7, 85000, "PSE")
+activate F
+
+alt silla disponible y medio de pago válido
+    F -> INV : estaDisponible(7)
+    activate INV
+    INV --> F : true
+    deactivate INV
+
+    F -> PAGO : validarMedioPago("PSE")
+    activate PAGO
+    PAGO --> F : true
+    deactivate PAGO
+
+    F -> INV : bloquear(7)
+    activate INV
+    deactivate INV
+
+    F -> PAGO : cobrar("PSE", 85000)
+    activate PAGO
+    PAGO --> F : "TRX-2707"
+    deactivate PAGO
+
+    F -> FACT : generarFactura("Carlos Gómez", 85000, "TRX-2707")
+    activate FACT
+    FACT --> F : "FE-1001"
+    deactivate FACT
+
+    F -> NOT : enviarConfirmacion("carlos@correo.com", "FE-1001", 7)
+    activate NOT
+    deactivate NOT
+
+    F --> Main : true
+else silla ya ocupada (segundo intento, misma silla)
+    F -> INV : estaDisponible(7)
+    activate INV
+    INV --> F : false
+    deactivate INV
+    F --> Main : false
+end
+
+deactivate F
+deactivate Main
+@enduml

@@ -1,0 +1,37 @@
+@startuml
+title Proxy - Acceso a reportes gerenciales
+
+class Main <<control>>
+
+interface RepositorioReportes {
+  +obtenerReporte(idReporte): String
+}
+
+class RepositorioReportesReal {
+  +obtenerReporte(idReporte): String
+}
+
+class ProxyReportes {
+  -usuario: String
+  -rol: String
+  -real: RepositorioReportesReal
+  -cache: Map<String, String>
+  +obtenerReporte(idReporte): String
+}
+
+Main ..> RepositorioReportes : usa
+RepositorioReportes <|.. RepositorioReportesReal
+RepositorioReportes <|.. ProxyReportes
+ProxyReportes *-- RepositorioReportesReal : real (creación\nperezosa, dueño exclusivo)
+
+note right of ProxyReportes
+  Combina 3 usos de Proxy en el mismo método:
+  - Protección: valida rol antes de continuar
+  - Virtual: crea "real" solo la 1ª vez que hace falta
+  - Caché: evita repetir consultas ya hechas
+  Composición (no agregación): el proxy crea
+  y es dueño exclusivo de su objeto real,
+  a diferencia del "envuelto" de Decorator.
+end note
+
+@enduml

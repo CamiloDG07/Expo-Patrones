@@ -1,0 +1,31 @@
+@startuml
+title Decorator - Secuencia: costo() de un tiquete con seguro + equipaje
+
+actor Cliente
+participant "main:Main" as Main
+participant "eq:EquipajeExtra" as EQ
+participant "seg:SeguroViaje" as SEG
+participant "tb:TiqueteBasico" as TB
+
+Cliente -> Main : ejecutar demo
+activate Main
+
+Main -> Main : new TiqueteBasico("Bogotá - Bucaramanga", 85000)
+Main -> Main : new SeguroViaje(tb)
+Main -> Main : new EquipajeExtra(seg, 10)
+
+Main -> EQ : costo()
+activate EQ
+EQ -> SEG : super.costo() -> envuelto.costo()
+activate SEG
+SEG -> TB : super.costo() -> envuelto.costo()
+activate TB
+TB --> SEG : 85000
+deactivate TB
+SEG --> EQ : 85000 + 3500 = 88500
+deactivate SEG
+EQ --> Main : 88500 + (10 * 1200) = 100500
+deactivate EQ
+
+deactivate Main
+@enduml
